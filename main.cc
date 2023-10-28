@@ -6,7 +6,22 @@
 
 #include <cassert>
 
+double hit_sphere(const ray &r, const point3 &center, double raduis) {
+	vec3 oc = r.origin() - center;
+	auto a = r.direction().length_squared();
+	auto half_b = oc.dot(r.direction());
+	auto c = oc.length_squared() - raduis * raduis;
+	auto discriminant = half_b *half_b - a * c;
+
+	return (discriminant < 0) ? -1.0 : -half_b -std::sqrt(discriminant) / a;
+}
+
 color ray_color(const ray &r) {
+	auto t = hit_sphere(r, point3(0, 0, -1), 0.5);
+	if (t > 0.0) {
+		vec3 normal = unit_vector(r.at(t) - point3(0, 0, -1));
+		return 0.5 * color(normal.x() + 1, normal.y() + 1, normal.z() + 1);
+	}
 	vec3 unit_direction = unit_vector(r.direction());
 	assert( std::abs(unit_direction.length() - 1.0) < 1e-15 );
 	auto a = 0.5 * (unit_direction.y() + 1.0);
